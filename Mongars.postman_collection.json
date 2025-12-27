@@ -1,0 +1,322 @@
+{
+  "info": {
+    "name": "Mongars API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/auth/register", "host": [ "{{base_url}}" ], "path": [ "api", "auth", "register" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password\",\n  \"phone\": \"+22501020304\",\n  \"auth_method\": \"EMAIL\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/auth/login", "host": [ "{{base_url}}" ], "path": [ "api", "auth", "login" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Auth - Send OTP",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/auth/send-otp", "host": [ "{{base_url}}" ], "path": [ "api", "auth", "send-otp" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"+22501020304\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Auth - Verify OTP",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/auth/verify-otp", "host": [ "{{base_url}}" ], "path": [ "api", "auth", "verify-otp" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"+22501020304\",\n  \"otp\": \"123456\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Auth - Google Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/auth/google", "host": [ "{{base_url}}" ], "path": [ "api", "auth", "google" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"GOOGLE_TOKEN\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Auth - Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/auth/logout", "host": [ "{{base_url}}" ], "path": [ "api", "auth", "logout" ] }
+      }
+    },
+    {
+      "name": "User - Me",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/me", "host": [ "{{base_url}}" ], "path": [ "api", "users", "me" ] }
+      }
+    },
+    {
+      "name": "User - Update Me",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/me", "host": [ "{{base_url}}" ], "path": [ "api", "users", "me" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Jane Doe\"\n}"
+        }
+      }
+    },
+    {
+      "name": "User - Upload Avatar",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "multipart/form-data" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/me/avatar", "host": [ "{{base_url}}" ], "path": [ "api", "users", "me", "avatar" ] },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "avatar", "type": "file", "src": "" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "User - Search",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/search", "host": [ "{{base_url}}" ], "path": [ "api", "users", "search" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"Jane\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Couple - My Couple",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/couples/me", "host": [ "{{base_url}}" ], "path": [ "api", "couples", "me" ] }
+      }
+    },
+    {
+      "name": "Couple - Break Up",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/couples/break-up", "host": [ "{{base_url}}" ], "path": [ "api", "couples", "break-up" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"couple_id\": \"COUPLE_UUID\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Couple Requests - Received",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/couple-requests/received", "host": [ "{{base_url}}" ], "path": [ "api", "couple-requests", "received" ] }
+      }
+    },
+    {
+      "name": "Couple Requests - Sent",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/couple-requests/sent", "host": [ "{{base_url}}" ], "path": [ "api", "couple-requests", "sent" ] }
+      }
+    },
+    {
+      "name": "Couple Requests - Send",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/couple-requests/send", "host": [ "{{base_url}}" ], "path": [ "api", "couple-requests", "send" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"USER_UUID\",\n  \"candidate_id\": \"CANDIDATE_UUID\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Couple Requests - Respond",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/couple-requests/{{request_id}}/respond", "host": [ "{{base_url}}" ], "path": [ "api", "couple-requests", "{{request_id}}", "respond" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"ACCEPTED\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Search - User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/search/user", "host": [ "{{base_url}}" ], "path": [ "api", "search", "user" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"USER_UUID\",\n  \"search_term\": \"Jane\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Search - History",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/search/history", "host": [ "{{base_url}}" ], "path": [ "api", "search", "history" ] }
+      }
+    },
+    {
+      "name": "Stats - User",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/stats/user", "host": [ "{{base_url}}" ], "path": [ "api", "stats", "user" ] }
+      }
+    },
+    {
+      "name": "Stats - Global",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/stats/global", "host": [ "{{base_url}}" ], "path": [ "api", "stats", "global" ] }
+      }
+    },
+    {
+      "name": "Stats - Profile Viewers",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/stats/profile-viewers", "host": [ "{{base_url}}" ], "path": [ "api", "stats", "profile-viewers" ] }
+      }
+    },
+    {
+      "name": "Subscription - My Subscription",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/subscriptions/me", "host": [ "{{base_url}}" ], "path": [ "api", "subscriptions", "me" ] }
+      }
+    },
+    {
+      "name": "Subscription - Subscribe",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/subscriptions/subscribe", "host": [ "{{base_url}}" ], "path": [ "api", "subscriptions", "subscribe" ] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"USER_UUID\",\n  \"type\": \"PREMIUM\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Notification - Unread Count",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{base_url}}/api/notifications/unread/count", "host": [ "{{base_url}}" ], "path": [ "api", "notifications", "unread", "count" ] }
+      }
+    },
+    {
+      "name": "Notification - Mark As Read",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{base_url}}/api/notifications/{{notification_id}}/mark-as-read", "host": [ "{{base_url}}" ], "path": [ "api", "notifications", "{{notification_id}}", "mark-as-read" ] }
+      }
+    }
+  ]
+}
