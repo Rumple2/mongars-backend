@@ -47,6 +47,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 	// Notifications
 	Route::get('notifications/unread/count', [App\Http\Controllers\NotificationController::class, 'unreadCount']);
+	Route::get('notifications/me', [App\Http\Controllers\NotificationController::class, 'myNotifications']);
+	Route::post('notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+	Route::post('notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+
+	// Profile Views (protégé)
+	Route::post('profile-views', [App\Http\Controllers\ProfileViewController::class, 'store']);
 });
 
 // API Resource routes (CRUD)
@@ -54,6 +60,6 @@ Route::apiResource('users', App\Http\Controllers\UserController::class);
 Route::apiResource('couples', App\Http\Controllers\CoupleController::class);
 // Route::apiResource('couple-requests', App\Http\Controllers\CoupleRequestController::class); // Désactivé - routes spécifiques utilisées
 Route::apiResource('search-histories', App\Http\Controllers\SearchHistoryController::class);
-Route::apiResource('profile-views', App\Http\Controllers\ProfileViewController::class);
+// Route::apiResource('profile-views', App\Http\Controllers\ProfileViewController::class); // Désactivé - route spécifique utilisée ci-dessus
 Route::apiResource('subscriptions', App\Http\Controllers\SubscriptionController::class);
 Route::apiResource('notifications', App\Http\Controllers\NotificationController::class);

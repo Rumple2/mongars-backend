@@ -88,7 +88,7 @@ class NotificationController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-        /**
+    /**
      * Get the count of unread notifications for the authenticated user.
      */
     public function unreadCount(Request $request)
@@ -97,6 +97,56 @@ class NotificationController extends Controller
             $user = $request->user();
             $count = $user->notifications()->where('read', false)->count();
             return response()->json(['unread_count' => $count]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get all notifications for the authenticated user.
+     */
+    public function myNotifications(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $notifications = $user->notifications()
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+            return response()->json($notifications);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Mark a notification as read.
+     */
+    public function markAsRead(Request $request, string $id)
+    {
+        try {
+            $user = $request->user();
+            $notification = $user->notifications()->find($id);
+            
+            if (!$notification) {
+                return response()->json(['error' => 'Notification not found'], 404);
+            }
+            
+            $notification->update(['read' => true]);
+            return response()->json(['success' => true, 'notification' => $notification]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Mark all notifications as read.
+     */
+    public function markAllAsRead(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $user->notifications()->where('read', false)->update(['read' => true]);
+            return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

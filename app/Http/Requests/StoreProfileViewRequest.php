@@ -22,8 +22,8 @@ class StoreProfileViewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'viewer_id' => 'required|uuid|exists:users,id|different:viewed_user_id',
-            'viewed_user_id' => 'required|uuid|exists:users,id|different:viewer_id',
+            'viewer_id' => 'required|uuid|exists:users,id|different:viewed_id',
+            'viewed_id' => 'required|uuid|exists:users,id|different:viewer_id',
             'viewed_at' => 'nullable|date',
             'ip_address' => 'nullable|string|max:45',
         ];

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\CoupleRequest;
+use App\Models\Couple;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CoupleRequestController extends Controller
 {
@@ -128,10 +131,35 @@ class CoupleRequestController extends Controller
             $coupleRequest->responded_at = now();
             $coupleRequest->save();
 
-            // Si accepté, créer le couple
+            // Si accepté, créer le couple et mettre à jour les utilisateurs
             if ($coupleRequest->status === 'ACCEPTED') {
-                // TODO: Créer le couple dans la table couples
-                // Pour l'instant, on retourne juste la demande mise à jour
+                DB::transaction(function () use ($coupleRequest) {
+                    // Vérifier qu'aucun des deux utilisateurs n'est déjà en couple
+                    $sender = User::find($coupleRequest->sender_id);
+                    $receiver = User::find($coupleRequest->receiver_id);
+                    
+                    if ($sender->status === 'IN_RELATIONSHIP' || $receiver->status === 'IN_RELATIONSHIP') {
+                        throw new \Exception('Un des utilisateurs est déjà en couple');
+                    }
+
+                    // Créer le couple
+                    $couple = Couple::create([
+                        'user1_id' => $coupleRequest->sender_id,
+                        'user2_id' => $coupleRequest->receiver_id,
+                        'is_active' => true,
+                    ]);
+
+                    // Mettre à jour les deux utilisateurs
+                    $sender->update([
+                        'status' => 'IN_RELATIONSHIP',
+                        'couple_id' => $couple->id,
+                    ]);
+
+                    $receiver->update([
+                        'status' => 'IN_RELATIONSHIP',
+                        'couple_id' => $couple->id,
+                    ]);
+                });
             }
 
             return response()->json(['success' => true, 'data' => $coupleRequest->fresh(['sender', 'receiver'])]);

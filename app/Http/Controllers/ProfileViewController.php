@@ -25,14 +25,47 @@ class ProfileViewController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreProfileViewRequest $request)
+    public function store(Request $request)
     {
         try {
-            $data = $request->validated();
-            $data['id'] = Str::uuid();
-            $data['viewed_at'] = $data['viewed_at'] ?? now();
-            $view = ProfileView::create($data);
+            $user = $request->user();
+            if (!$user) {
+                return response()->json(['error' => 'Non authentifié'], 401);
+            }
+
+            $request->validate([
+                'viewed_id' => 'required|uuid|exists:users,id',
+            ]);
+
+            $viewedId = $request->input('viewed_id');
+            
+            // Ne pas permettre de voir son propre profil
+            if ($user->id === $viewedId) {
+                return response()->json(['error' => 'Vous ne pouvez pas voir votre propre profil'], 400);
+            }
+
+            // Vérifier si une vue existe déjà aujourd'hui pour éviter les doublons
+            $existingView = ProfileView::where('viewer_id', $user->id)
+                ->where('viewed_id', $viewedId)
+                ->whereDate('viewed_at', now()->toDateString())
+                ->first();
+
+            if ($existingView) {
+                // Mettre à jour la date de vue
+                $existingView->update(['viewed_at' => now()]);
+                return response()->json(['success' => true, 'profile_view' => $existingView->load(['viewer', 'viewedUser'])], 200);
+            }
+
+            $view = ProfileView::create([
+                'id' => Str::uuid(),
+                'viewer_id' => $user->id,
+                'viewed_id' => $viewedId,
+                'viewed_at' => now(),
+            ]);
+
             return response()->json(['success' => true, 'profile_view' => $view->load(['viewer', 'viewedUser'])], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => $e->getMessage(), 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
