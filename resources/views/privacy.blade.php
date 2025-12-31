@@ -180,6 +180,20 @@
         </ul>
         <p>Pour exercer ces droits, contactez-nous à l'adresse indiquée dans la section "Contact" ci-dessous.</p>
 
+        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0; border-radius: 6px;">
+            <h3 style="color: #92400e; margin-top: 0;">🗑️ Suppression de compte et données</h3>
+            <p style="margin-bottom: 15px;">Vous souhaitez supprimer votre compte et toutes vos données associées ?</p>
+            <p style="margin-bottom: 15px;">Vous pouvez faire une demande de suppression en utilisant le formulaire dédié :</p>
+            <p style="margin-bottom: 0;">
+                <a href="{{ url('/account-deletion-request') }}" style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 10px;">
+                    📝 Demander la suppression de mon compte
+                </a>
+            </p>
+            <p style="margin-top: 15px; font-size: 0.9em; color: #6b7280;">
+                Ou contactez-nous directement par email à <a href="mailto:sangolgalanga@gmail.com?subject=Demande de suppression de compte">sangolgalanga@gmail.com</a> en précisant votre identifiant ou email de compte.
+            </p>
+        </div>
+
         <h2>6. Conservation des données</h2>
         <p>Nous conservons vos données personnelles aussi longtemps que nécessaire pour fournir nos services et respecter nos obligations légales. Lorsque vous supprimez votre compte :</p>
         <ul>

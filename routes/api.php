@@ -21,6 +21,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 	Route::patch('users/me', [App\Http\Controllers\UserController::class, 'updateMe']);
 	Route::post('users/me/avatar', [App\Http\Controllers\UserController::class, 'uploadAvatar']);
 	Route::post('users/search', [App\Http\Controllers\UserController::class, 'search']);
+	Route::delete('users/me', [App\Http\Controllers\AccountDeletionController::class, 'deleteMyAccount']);
 
 	// Couples
 	Route::get('couples/me', [App\Http\Controllers\CoupleController::class, 'myCouple']);
