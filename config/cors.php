@@ -20,12 +20,11 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'http://127.0.0.1:5173',
-        'http://127.0.0.1:3000',
-        'https://dashboard-weetoo.cekupay.com',
-        env('FRONTEND_URL', 'http://localhost:5173'),
+        // 'http://localhost:5173',
+        // 'http://localhost:3000',
+        // 'http://127.0.0.1:5173',
+        // 'http://127.0.0.1:3000',
+        env('FRONTEND_URL', 'https://dashboard-weetoo.cekupay.com'),
     ],
 
     'allowed_origins_patterns' => [],
