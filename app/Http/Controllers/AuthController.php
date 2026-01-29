@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Kreait\Firebase\Contract\Auth as FirebaseAuth;
+use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
 
 class AuthController extends Controller
 {
+    public function __construct(private FirebaseAuth $firebaseAuth)
+    {
+    }
     public function register(Request $request)
     {
         try {
@@ -155,37 +160,60 @@ class AuthController extends Controller
     }
     public function google(Request $request)
     {
+        // Le front envoie l'ID token Firebase sous la clé "id_token"
+        $validated = $request->validate([
+            'id_token' => 'required|string',
+        ]);
+
         try {
-            $validated = $request->validate([
-                'token' => 'required|string',
-            ]);
+            // 1) Vérifier le token auprès de Firebase
+            $verifiedToken = $this->firebaseAuth->verifyIdToken($validated['id_token']);
+            $claims = $verifiedToken->claims();
 
-            // TODO: Verify Google token and extract user info (email, name, etc.)
-            // For now, simulate Google token verification
-            $googleEmail = 'google_' . substr($validated['token'], 0, 8) . '@gmail.com';
-            $googleName = 'GoogleUser_' . substr($validated['token'], 0, 5);
+            $uid = $claims->get('sub');
+            $email = $claims->get('email');
+            $name = $claims->get('name');
 
-            $user = \App\Models\User::where('email', $googleEmail)->first();
+            if (!$email) {
+                return response()->json([
+                    'message' => 'Impossible de récupérer l’email depuis le token Google',
+                ], 422);
+            }
+
+            // 2) Créer / récupérer l’utilisateur dans ta base
+            $user = User::where('email', $email)->first();
             if (!$user) {
-                $user = \App\Models\User::create([
-                    'id' => \Illuminate\Support\Str::uuid(),
-                    'name' => $googleName,
-                    'email' => $googleEmail,
+                $user = User::create([
+                    'id'          => \Illuminate\Support\Str::uuid(),
+                    'name'        => $name ?: 'Utilisateur Google',
+                    'email'       => $email,
                     'auth_method' => 'GOOGLE',
                     'is_verified' => true,
                 ]);
+            } else {
+                // S'assurer que l'utilisateur est marqué comme vérifié et auth_method à JOUR
+                $user->auth_method = 'GOOGLE';
+                $user->is_verified = true;
+                $user->save();
             }
 
+            // 3) Générer le token d’API (Sanctum)
             $token = $user->createToken('auth_token')->plainTextToken;
 
+            // 4) Réponse alignée avec /auth/login et /auth/register
             return response()->json([
-                'user' => $user,
+                'user'  => $user,
                 'token' => $token,
             ]);
+        } catch (FailedToVerifyToken $e) {
+            return response()->json([
+                'message' => 'Token Google invalide',
+                'error'   => $e->getMessage(),
+            ], 401);
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => 'Google login failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 400);
         }
     }

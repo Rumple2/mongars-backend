@@ -16,6 +16,15 @@ Route::prefix('auth')->group(function () {
 
 // ROUTES PROTEGEES (auth:sanctum)
 Route::middleware(['auth:sanctum'])->group(function () {
+	// API Resource routes (CRUD)
+	//Route::apiResource('users', App\Http\Controllers\UserController::class);
+	//Route::apiResource('couples', App\Http\Controllers\CoupleController::class);
+	// Route::apiResource('couple-requests', App\Http\Controllers\CoupleRequestController::class); // Désactivé - routes spécifiques utilisées
+	//Route::apiResource(name: 'search-histories', App\Http\Controllers\SearchHistoryController::class);
+	// Route::apiResource('profile-views', App\Http\Controllers\ProfileViewController::class); // Désactivé - route spécifique utilisée ci-dessus
+	//Route::apiResource('subscriptions', App\Http\Controllers\SubscriptionController::class);
+	//Route::apiResource('notifications', App\Http\Controllers\NotificationController::class);
+
 	// Utilisateur connecté
 	Route::get('users/me', [App\Http\Controllers\UserController::class, 'me']);
 	Route::patch('users/me', [App\Http\Controllers\UserController::class, 'updateMe']);
@@ -56,11 +65,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
 	Route::post('profile-views', [App\Http\Controllers\ProfileViewController::class, 'store']);
 });
 
-// API Resource routes (CRUD)
-Route::apiResource('users', App\Http\Controllers\UserController::class);
-Route::apiResource('couples', App\Http\Controllers\CoupleController::class);
-// Route::apiResource('couple-requests', App\Http\Controllers\CoupleRequestController::class); // Désactivé - routes spécifiques utilisées
-Route::apiResource('search-histories', App\Http\Controllers\SearchHistoryController::class);
-// Route::apiResource('profile-views', App\Http\Controllers\ProfileViewController::class); // Désactivé - route spécifique utilisée ci-dessus
-Route::apiResource('subscriptions', App\Http\Controllers\SubscriptionController::class);
-Route::apiResource('notifications', App\Http\Controllers\NotificationController::class);
