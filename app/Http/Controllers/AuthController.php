@@ -167,7 +167,7 @@ class AuthController extends Controller
 
         try {
             // 1) Vérifier le token auprès de Firebase
-            $verifiedToken = $this->firebaseAuth->verifyIdToken($validated['id_token']);
+            $verifiedToken = $this->firebaseAuth->verifyIdToken($validated['id_token'], false, 60); // 60 seconds leeway
             $claims = $verifiedToken->claims();
 
             $uid = $claims->get('sub');
