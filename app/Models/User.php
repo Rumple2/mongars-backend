@@ -76,6 +76,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(CoupleRequest::class, 'receiver_id');
     }
+
+    /**
+     * Get the device tokens for the user.
+     */
+    public function deviceTokens()
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
         public function notifications()
     {
         return $this->hasMany(Notification::class, 'user_id');

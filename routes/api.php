@@ -1,8 +1,13 @@
+
 <?php
+
+// Test push notification (accessible sans auth pour test, à sécuriser si besoin)
+Route::post('push-test', [App\Http\Controllers\PushTestController::class, 'sendTest']);
 
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DeviceTokenController;
 
 // AUTHENTICATION
 Route::prefix('auth')->group(function () {
@@ -56,6 +61,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 	Route::post('subscriptions/subscribe', [App\Http\Controllers\SubscriptionController::class, 'subscribe']);
 
 	// Notifications
+	Route::post('device-tokens', [DeviceTokenController::class, 'store']);
 	Route::get('notifications/unread/count', [App\Http\Controllers\NotificationController::class, 'unreadCount']);
 	Route::get('notifications/me', [App\Http\Controllers\NotificationController::class, 'myNotifications']);
 	Route::post('notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);

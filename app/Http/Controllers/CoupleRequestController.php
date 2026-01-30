@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Services\NotificationManagerService; // Import du nouveau service
 
 class CoupleRequestController extends Controller
 {
@@ -48,24 +49,17 @@ class CoupleRequestController extends Controller
     /**
      * Envoie une demande de couple
      */
-    public function sendRequest(Request $request)
+    public function sendRequest(Request $request, NotificationManagerService $notificationManager) // Injection du nouveau service
     {
         try {
-            $user = $request->user();
+            $sender = $request->user();
             $data = $request->validate([
-                'sender_id' => 'required|uuid|exists:users,id',
                 'receiver_id' => 'required|uuid|exists:users,id|different:sender_id',
-                'status' => 'in:PENDING,ACCEPTED,REJECTED,CANCELLED',
                 'message' => 'nullable|string',
             ]);
 
-            // Vérifier que l'utilisateur connecté est bien le sender
-            if ($data['sender_id'] !== $user->id) {
-                return response()->json(['error' => 'Vous ne pouvez envoyer une demande qu\'en votre nom'], 403);
-            }
-
             // Vérifier qu'il n'y a pas déjà une demande en cours
-            $existingRequest = CoupleRequest::where('sender_id', $data['sender_id'])
+            $existingRequest = CoupleRequest::where('sender_id', $sender->id)
                 ->where('receiver_id', $data['receiver_id'])
                 ->whereIn('status', ['PENDING', 'ACCEPTED'])
                 ->first();
@@ -75,9 +69,9 @@ class CoupleRequestController extends Controller
             }
 
             $coupleRequestData = [
-                'sender_id' => $data['sender_id'],
+                'sender_id' => $sender->id,
                 'receiver_id' => $data['receiver_id'],
-                'status' => $data['status'] ?? 'PENDING',
+                'status' => 'PENDING',
             ];
 
             if (isset($data['message'])) {
@@ -85,6 +79,20 @@ class CoupleRequestController extends Controller
             }
 
             $coupleRequest = CoupleRequest::create($coupleRequestData);
+
+            // *** ENVOI DE LA NOTIFICATION VIA LE MANAGER ***
+            $receiver = User::find($data['receiver_id']);
+            if ($receiver) {
+                $title = 'Nouvelle demande de couple';
+                $body = "{$sender->name} vous a envoyé une demande.";
+                $payload = [
+                    'request_id' => (string) $coupleRequest->id,
+                    'sender_name' => $sender->name, // Ajout du nom de l'expéditeur
+                ];
+                $notificationManager->send($receiver, 'couple_request_received', $title, $body, $payload); // Utilisation du manager et type harmonisé
+            }
+            // ***********************************************
+
             return response()->json(['success' => true, 'data' => $coupleRequest->load(['sender', 'receiver'])], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['error' => $e->getMessage(), 'errors' => $e->errors()], 422);
@@ -96,10 +104,10 @@ class CoupleRequestController extends Controller
     /**
      * Répond à une demande de couple (accepter ou refuser)
      */
-    public function respond(Request $request, string $id)
+    public function respond(Request $request, string $id, NotificationManagerService $notificationManager) // Injection du nouveau service
     {
         try {
-            $user = $request->user();
+            $responder = $request->user();
             $coupleRequest = CoupleRequest::with(['sender', 'receiver'])->find($id);
 
             if (!$coupleRequest) {
@@ -107,7 +115,7 @@ class CoupleRequestController extends Controller
             }
 
             // Vérifier que l'utilisateur connecté est le receiver
-            if ($coupleRequest->receiver_id !== $user->id) {
+            if ($coupleRequest->receiver_id !== $responder->id) {
                 return response()->json(['error' => 'Vous n\'êtes pas autorisé à répondre à cette demande'], 403);
             }
 
@@ -129,7 +137,7 @@ class CoupleRequestController extends Controller
             }
 
             $coupleRequest->responded_at = now();
-            $coupleRequest->save();
+            
 
             // Si accepté, créer le couple et mettre à jour les utilisateurs
             if ($coupleRequest->status === 'ACCEPTED') {
@@ -161,6 +169,29 @@ class CoupleRequestController extends Controller
                     ]);
                 });
             }
+            
+            $coupleRequest->save();
+
+            // *** ENVOI DE LA NOTIFICATION DE REPONSE VIA LE MANAGER ***
+            $sender = $coupleRequest->sender;
+            if ($sender) {
+                $type = '';
+                $title = '';
+                $body = '';
+                $payload = ['responder_id' => $responder->id, 'responder_name' => $responder->name]; // Ajout du nom du répondeur
+
+                if ($coupleRequest->status === 'ACCEPTED') {
+                    $type = 'couple_request_accepted';
+                    $title = 'Demande acceptée !';
+                    $body = "{$responder->name} a accepté votre demande de couple.";
+                } else { // REJECTED
+                    $type = 'couple_request_rejected';
+                    $title = 'Demande refusée';
+                    $body = "{$responder->name} a refusé votre demande de couple.";
+                }
+                $notificationManager->send($sender, $type, $title, $body, $payload); // Utilisation du manager
+            }
+            // *********************************************************
 
             return response()->json(['success' => true, 'data' => $coupleRequest->fresh(['sender', 'receiver'])]);
         } catch (\Illuminate\Validation\ValidationException $e) {

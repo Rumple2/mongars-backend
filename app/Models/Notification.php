@@ -2,28 +2,61 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Notification extends Model
 {
+    use HasFactory, HasUuids;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'id',
         'user_id',
         'type',
         'title',
-        'message',
+        'body',
         'data',
-        'read',
+        'read_at',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
-        'id' => 'string',
         'data' => 'array',
-        'read' => 'boolean',
+        'read_at' => 'datetime',
     ];
 
-    public function user()
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['read'];
+
+    /**
+     * Get the user that owns the notification.
+     */
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the 'read' attribute (boolean) based on 'read_at'.
+     *
+     * @return bool
+     */
+    public function getReadAttribute(): bool
+    {
+        return $this->read_at !== null;
     }
 }

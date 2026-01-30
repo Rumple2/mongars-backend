@@ -71,7 +71,8 @@ class StatsController extends Controller
         try {
             $stats = [
                 'users_count' => \App\Models\User::count(),
-                'couples_count' => \App\Models\Couple::count(),
+                'couples_count' => \App\Models\Couple::where('is_active', true)->count(), // Compte seulement les couples actifs
+                'separated_couples_count' => \App\Models\Couple::where('is_active', false)->count(), // Compte les couples séparés
                 'couple_requests_count' => \App\Models\CoupleRequest::count(),
                 'profile_views_count' => \App\Models\ProfileView::count(),
             ];
