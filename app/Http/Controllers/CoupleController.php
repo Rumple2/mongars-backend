@@ -27,7 +27,7 @@ class CoupleController extends Controller
                 ->first();
 
             if (!$couple) {
-                return response()->json(null, 200); // Return null if not in a couple, which is not an error.
+                return response()->json(null, 404); // Return null if not in a couple, which is not an error.
             }
 
             return response()->json($couple);
@@ -39,7 +39,8 @@ class CoupleController extends Controller
     /**
      * End a relationship.
      */
-    public function breakUp(Request $request)
+    // Injection du service de notification
+    public function breakUp(Request $request, \App\Services\NotificationManagerService $notificationManager)
     {
         try {
             $user = $request->user();
@@ -89,9 +90,19 @@ class CoupleController extends Controller
             })->where('status', 'ACCEPTED')
               ->update(['status' => 'ENDED', 'responded_at' => now()]);
 
-            // Notify the partner
+
+            // Notify the partner via NotificationManagerService
             if ($partner) {
-                $partner->notify(new PartnerBrokeUpNotification($user->name));
+                $notificationManager->send(
+                    $partner,
+                    'relationship_ended',
+                    'Relation terminée',
+                    "Votre relation avec {$user->name} a pris fin.",
+                    [
+                        'type' => 'RELATIONSHIP_ENDED',
+                        'partner_name' => $user->name,
+                    ]
+                );
             }
 
             return response()->json(['success' => true, 'message' => 'The relationship has been ended.']);
