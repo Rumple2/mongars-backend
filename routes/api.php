@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 	Route::get('couple-requests/sent', [App\Http\Controllers\CoupleRequestController::class, 'sent']);
 	Route::post('couple-requests/send', [App\Http\Controllers\CoupleRequestController::class, 'sendRequest']);
 	Route::post('couple-requests/{id}/respond', [App\Http\Controllers\CoupleRequestController::class, 'respond']);
+	Route::post('couple-requests/{id}/cancel', [App\Http\Controllers\CoupleRequestController::class, 'cancel']);
 
 	// Recherche
 	Route::post('search/user', [App\Http\Controllers\SearchHistoryController::class, 'searchUser']);
@@ -70,4 +71,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
 	// Profile Views (protégé)
 	Route::post('profile-views', [App\Http\Controllers\ProfileViewController::class, 'store']);
 });
-

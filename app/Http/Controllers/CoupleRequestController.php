@@ -68,6 +68,14 @@ class CoupleRequestController extends Controller
                 return response()->json(['error' => 'Une demande existe déjà avec cet utilisateur'], 400);
             }
 
+            // Vérifier qu'il n'y a pas déjà une autre demande PENDING envoyée par l'utilisateur
+            $pendingRequest = CoupleRequest::where('sender_id', $sender->id)
+                ->where('status', 'PENDING')
+                ->first();
+            if ($pendingRequest) {
+                return response()->json(['error' => 'Vous avez déjà une demande en attente'], 400);
+            }
+
             $coupleRequestData = [
                 'sender_id' => $sender->id,
                 'receiver_id' => $data['receiver_id'],
@@ -122,6 +130,11 @@ class CoupleRequestController extends Controller
             // Vérifier que la demande est en attente
             if ($coupleRequest->status !== 'PENDING') {
                 return response()->json(['error' => 'Cette demande a déjà été traitée'], 400);
+            }
+
+            // Bloquer si le receveur est déjà en couple
+            if ($responder->status === 'IN_RELATIONSHIP') {
+                return response()->json(['error' => 'Vous êtes déjà en couple.'], 400);
             }
 
             $data = $request->validate([
@@ -196,6 +209,38 @@ class CoupleRequestController extends Controller
             return response()->json(['success' => true, 'data' => $coupleRequest->fresh(['sender', 'receiver'])]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['error' => $e->getMessage(), 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Annule une demande de couple envoyée (statut -> CANCELLED)
+     */
+    public function cancel(Request $request, string $id)
+    {
+        try {
+            $sender = $request->user();
+            $coupleRequest = CoupleRequest::with(['sender', 'receiver'])->find($id);
+
+            if (!$coupleRequest) {
+                return response()->json(['error' => 'Demande de couple non trouvée'], 404);
+            }
+
+            // Seul l'expéditeur peut annuler
+            if ($coupleRequest->sender_id !== $sender->id) {
+                return response()->json(['error' => 'Vous n\'êtes pas autorisé à annuler cette demande'], 403);
+            }
+
+            // Seules les demandes PENDING peuvent être annulées
+            if ($coupleRequest->status !== 'PENDING') {
+                return response()->json(['error' => 'Cette demande ne peut plus être annulée'], 400);
+            }
+
+            $coupleRequest->status = 'CANCELLED';
+            $coupleRequest->save();
+
+            return response()->json(['success' => true, 'data' => $coupleRequest->fresh(['sender', 'receiver'])]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
