@@ -105,11 +105,11 @@ class UserController extends Controller
                 $file = $request->file('avatar');
                 $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                 
-                // Stocker le fichier dans storage/app/public/avatars
-                $path = $file->storeAs('public/avatars', $filename);
+                // Stocker le fichier dans storage/app/public/avatars (disk public)
+                $path = $file->storeAs('avatars', $filename, 'public');
                 
                 // Générer l'URL publique
-                $url = LaravelStorage::url('avatars/' . $filename);
+                $url = LaravelStorage::disk('public')->url($path);
                 
                 // Mettre à jour l'URL de l'avatar dans la base de données
                 $user->avatar_url = $url;

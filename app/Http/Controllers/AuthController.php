@@ -163,6 +163,7 @@ class AuthController extends Controller
         // Le front envoie l'ID token Firebase sous la clé "id_token"
         $validated = $request->validate([
             'id_token' => 'required|string',
+            'photo_url' => 'nullable|string|url',
         ]);
 
         try {
@@ -189,11 +190,15 @@ class AuthController extends Controller
                     'email'       => $email,
                     'auth_method' => 'GOOGLE',
                     'is_verified' => true,
+                    'avatar_url'  => $validated['photo_url'] ?? null,
                 ]);
             } else {
                 // S'assurer que l'utilisateur est marqué comme vérifié et auth_method à JOUR
                 $user->auth_method = 'GOOGLE';
                 $user->is_verified = true;
+                if (!empty($validated['photo_url'])) {
+                    $user->avatar_url = $validated['photo_url'];
+                }
                 $user->save();
             }
 
